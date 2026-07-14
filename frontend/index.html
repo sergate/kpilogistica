@@ -23,6 +23,54 @@
   <!-- ===================== MAIN ===================== -->
   <main class="main" id="main"></main>
 
+  <!-- ===================== MODAL IMPORTACIÓN ===================== -->
+  <div id="import-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Importar Datos de Productividad</h2>
+        <button class="modal-close" onclick="closeImportModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="modal-desc">Sube los tres archivos necesarios para procesar los datos logísticos.</p>
+        
+        <div class="file-upload-group">
+          <label class="file-upload-label">
+            <strong>Archivo de Clientes</strong>
+            <span class="file-format">Excel (.xlsx) con códigos y canales</span>
+          </label>
+          <input type="file" id="file-clientes" accept=".xlsx" />
+          <span class="file-name" id="filename-clientes">Ningún archivo seleccionado</span>
+        </div>
+
+        <div class="file-upload-group">
+          <label class="file-upload-label">
+            <strong>Pedidos por Tienda</strong>
+            <span class="file-format">CSV con separador ; y comillas</span>
+          </label>
+          <input type="file" id="file-tienda" accept=".csv" />
+          <span class="file-name" id="filename-tienda">Ningún archivo seleccionado</span>
+        </div>
+
+        <div class="file-upload-group">
+          <label class="file-upload-label">
+            <strong>Pedidos por Grupo</strong>
+            <span class="file-format">CSV con separador ; y comillas</span>
+          </label>
+          <input type="file" id="file-grupo" accept=".csv" />
+          <span class="file-name" id="filename-grupo">Ningún archivo seleccionado</span>
+        </div>
+
+        <div id="upload-status" class="upload-status"></div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="clearImportData()">Borrar Datos Actuales</button>
+        <button class="btn-primary" onclick="processFiles()">Procesar Datos</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script src="js/app.js"></script>

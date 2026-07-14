@@ -95,6 +95,12 @@ async function selectKpi(id) {
   currentKpi = id;
   document.querySelectorAll('.bay').forEach(b => b.classList.toggle('active', b.dataset.kpi === id));
 
+  // Si es el KPI de productividad de picking (B-03), mostrar modal de importación
+  if (id === 'pick-prod') {
+    showImportModal();
+    return;
+  }
+
   main.innerHTML = `<div class="kpi-desc">Cargando…</div>`;
 
   try {
@@ -139,6 +145,131 @@ async function selectKpi(id) {
     `;
   } catch (err) {
     main.innerHTML = `<div class="error-banner">No se pudo cargar el KPI "${id}". ${err.message}</div>`;
+  }
+}
+
+// ==================== FUNCIONES DE IMPORTACIÓN ====================
+
+function showImportModal() {
+  const modal = document.getElementById('import-modal');
+  modal.style.display = 'flex';
+  
+  // Configurar listeners para mostrar nombre de archivo
+  ['clientes', 'tienda', 'grupo'].forEach(type => {
+    const input = document.getElementById(`file-${type}`);
+    const display = document.getElementById(`filename-${type}`);
+    input.addEventListener('change', (e) => {
+      display.textContent = e.target.files[0]?.name || 'Ningún archivo seleccionado';
+    });
+  });
+}
+
+function closeImportModal() {
+  const modal = document.getElementById('import-modal');
+  modal.style.display = 'none';
+  
+  // Limpiar archivos seleccionados
+  ['clientes', 'tienda', 'grupo'].forEach(type => {
+    document.getElementById(`file-${type}`).value = '';
+    document.getElementById(`filename-${type}`).textContent = 'Ningún archivo seleccionado';
+  });
+  document.getElementById('upload-status').innerHTML = '';
+}
+
+async function processFiles() {
+  const clientesFile = document.getElementById('file-clientes').files[0];
+  const tiendaFile = document.getElementById('file-tienda').files[0];
+  const grupoFile = document.getElementById('file-grupo').files[0];
+  
+  const status = document.getElementById('upload-status');
+  
+  // Validar que todos los archivos estén seleccionados
+  if (!clientesFile || !tiendaFile || !grupoFile) {
+    status.innerHTML = '<div class="status-error">⚠️ Debes seleccionar los 3 archivos</div>';
+    return;
+  }
+  
+  // Validar extensiones
+  if (!clientesFile.name.endsWith('.xlsx')) {
+    status.innerHTML = '<div class="status-error">⚠️ El archivo de clientes debe ser .xlsx</div>';
+    return;
+  }
+  
+  if (!tiendaFile.name.endsWith('.csv') || !grupoFile.name.endsWith('.csv')) {
+    status.innerHTML = '<div class="status-error">⚠️ Los archivos de pedidos deben ser .csv</div>';
+    return;
+  }
+  
+  status.innerHTML = '<div class="status-loading">⏳ Procesando archivos...</div>';
+  
+  try {
+    const formData = new FormData();
+    formData.append('clientes', clientesFile);
+    formData.append('pedidos_tienda', tiendaFile);
+    formData.append('pedidos_grupo', grupoFile);
+    
+    const response = await fetch(`${API_BASE}/api/upload-files`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Error al procesar archivos');
+    }
+    
+    const result = await response.json();
+    
+    status.innerHTML = `
+      <div class="status-success">
+        ✅ Datos procesados correctamente<br>
+        <small>
+          Clientes: ${result.registros.clientes} | 
+          Pedidos Tienda: ${result.registros.pedidos_tienda} | 
+          Pedidos Grupo: ${result.registros.pedidos_grupo}
+        </small><br>
+        <small>Productividad calculada: <b>${result.productividad.value} u/h</b></small>
+      </div>
+    `;
+    
+    // Cerrar modal después de 2 segundos
+    setTimeout(() => {
+      closeImportModal();
+      // Recargar el sidebar para reflejar cambios
+      init();
+    }, 2000);
+    
+  } catch (err) {
+    status.innerHTML = `<div class="status-error">❌ Error: ${err.message}</div>`;
+  }
+}
+
+async function clearImportData() {
+  const status = document.getElementById('upload-status');
+  
+  if (!confirm('¿Estás seguro de borrar todos los datos importados? Esta acción no se puede deshacer.')) {
+    return;
+  }
+  
+  status.innerHTML = '<div class="status-loading">⏳ Borrando datos...</div>';
+  
+  try {
+    const response = await fetch(`${API_BASE}/api/clear-data`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Error al borrar datos');
+    }
+    
+    status.innerHTML = '<div class="status-success">✅ Datos borrados correctamente</div>';
+    
+    setTimeout(() => {
+      status.innerHTML = '';
+    }, 2000);
+    
+  } catch (err) {
+    status.innerHTML = `<div class="status-error">❌ Error: ${err.message}</div>`;
   }
 }
 
