@@ -63,18 +63,28 @@ def parse_csv_pedidos(file_content: bytes, tipo: str) -> list[dict]:
             data.append({
                 "fecha": row.get("fecha") or row.get("Fecha"),
                 "tienda": row.get("tienda") or row.get("Tienda"),
+                "id_tienda": row.get("id_tienda") or row.get("Id Tienda") or row.get("ID_Tienda"),
                 "pedido_id": row.get("pedido_id") or row.get("Pedido"),
-                "cantidad": int(row.get("cantidad", 0) or row.get("Cantidad", 0)),
+                "cantidad": int(row.get("cantidad", 0) or row.get("Cantidad", 0) or 0),
                 "operador": row.get("operador") or row.get("Operador"),
                 "turno": row.get("turno") or row.get("Turno")
             })
         elif tipo == "grupo":
+            # Mapear campos Uni, Uni.Pick, Uni.Sep
+            uni = row.get("uni") or row.get("Uni") or row.get("unidades") or row.get("Unidades") or "0"
+            uni_pick = row.get("uni_pick") or row.get("Uni.Pick") or row.get("Uni_Pick") or "0"
+            uni_sep = row.get("uni_sep") or row.get("Uni.Sep") or row.get("Uni.Sep.") or row.get("Uni_Sep") or "0"
+            
             data.append({
                 "fecha": row.get("fecha") or row.get("Fecha"),
                 "grupo": row.get("grupo") or row.get("Grupo"),
+                "marca": row.get("marca") or row.get("Marca"),
+                "id_tienda": row.get("id_tienda") or row.get("Id Tienda") or row.get("ID_Tienda"),
                 "pedido_id": row.get("pedido_id") or row.get("Pedido"),
-                "unidades": int(row.get("unidades", 0) or row.get("Unidades", 0)),
-                "horas_trabajadas": float(row.get("horas_trabajadas", 0) or row.get("Horas", 0)),
+                "uni": int(uni) if str(uni).strip() else 0,
+                "uni_pick": int(uni_pick) if str(uni_pick).strip() else 0,
+                "uni_sep": int(uni_sep) if str(uni_sep).strip() else 0,
+                "horas_trabajadas": float(row.get("horas_trabajadas", 0) or row.get("Horas", 0) or 0),
                 "categoria": row.get("categoria") or row.get("Categoria")
             })
     

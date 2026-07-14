@@ -187,11 +187,43 @@ function renderReport(reportId, title, data) {
   if (reportId === 'sp-resumen') {
     html += renderResumen(data.resumen);
   } else if (reportId === 'sp-fecha') {
-    html += renderTable(data.datos, ['fecha', 'cantidad_pedidos', 'total_unidades', 'total_horas', 'productividad']);
+    html += renderTable(data.datos, [
+      'fecha', 'marca', 'unidades', 'pickeadas', 'separadas', 'efic_picking', 'efic_separacion'
+    ], {
+      'fecha': 'Fecha',
+      'marca': 'Marca',
+      'unidades': 'Unidades',
+      'pickeadas': 'Pickeadas',
+      'separadas': 'Separadas',
+      'efic_picking': 'Efic. Picking (%)',
+      'efic_separacion': 'Efic. Separación (%)'
+    });
   } else if (reportId === 'sp-marca') {
-    html += renderTable(data.datos, ['marca', 'cantidad_pedidos', 'total_unidades', 'total_horas', 'productividad']);
+    html += renderTable(data.datos, [
+      'marca', 'unidades', 'pickeadas', 'separadas', 'pendiente_picking', 'pendiente_separacion', 'efic_picking', 'efic_separacion'
+    ], {
+      'marca': 'Marca',
+      'unidades': 'Unidades',
+      'pickeadas': 'Pickeadas',
+      'separadas': 'Separadas',
+      'pendiente_picking': 'Pendiente Picking',
+      'pendiente_separacion': 'Pendiente Separación',
+      'efic_picking': 'Efic. Picking (%)',
+      'efic_separacion': 'Efic. Separación (%)'
+    });
   } else if (reportId === 'sp-canal') {
-    html += renderTable(data.datos, ['canal', 'cantidad_pedidos', 'total_unidades']);
+    html += renderTable(data.datos, [
+      'canal', 'unidades', 'pickeadas', 'separadas', 'pendiente_picking', 'pendiente_separacion', 'efic_picking', 'efic_separacion'
+    ], {
+      'canal': 'Canal',
+      'unidades': 'Unidades',
+      'pickeadas': 'Pickeadas',
+      'separadas': 'Separadas',
+      'pendiente_picking': 'Pendiente Picking',
+      'pendiente_separacion': 'Pendiente Separación',
+      'efic_picking': 'Efic. Picking (%)',
+      'efic_separacion': 'Efic. Separación (%)'
+    });
   } else if (reportId === 'sp-categoria') {
     html += renderTable(data.datos, ['categoria', 'cantidad_pedidos', 'total_unidades', 'total_horas', 'productividad']);
   }
@@ -204,60 +236,75 @@ function renderResumen(resumen) {
   return `
     <div class="report-grid">
       <div class="report-card">
-        <h3>👥 Clientes</h3>
-        <div class="metric-big">${resumen.clientes.total}</div>
-        <div class="metric-label">Total de clientes</div>
-        <div class="metric-breakdown">
-          ${resumen.clientes.por_canal.map(c => `
-            <div class="metric-row">
-              <span>${c.canal || 'Sin canal'}</span>
-              <span><b>${c.cantidad}</b></span>
-            </div>
-          `).join('')}
+        <h3>📦 Total Unidades</h3>
+        <div class="metric-big">${resumen.total_unidades || 0}</div>
+        <div class="metric-label">Unidades totales</div>
+      </div>
+      
+      <div class="report-card">
+        <h3>✅ Unidades Pickeadas</h3>
+        <div class="metric-big">${resumen.unidades_pickeadas || 0}</div>
+        <div class="metric-label">Unidades procesadas</div>
+        <div class="metric-sub">
+          <span>Eficiencia:</span> <b>${resumen.efic_picking || 0}%</b>
         </div>
       </div>
       
       <div class="report-card">
-        <h3>🏪 Pedidos por Tienda</h3>
-        <div class="metric-big">${resumen.pedidos_tienda.total}</div>
-        <div class="metric-label">Total de pedidos</div>
+        <h3>📋 Unidades Separadas</h3>
+        <div class="metric-big">${resumen.unidades_separadas || 0}</div>
+        <div class="metric-label">Unidades separadas</div>
         <div class="metric-sub">
-          <span>Unidades:</span> <b>${resumen.pedidos_tienda.unidades || 0}</b>
+          <span>Eficiencia:</span> <b>${resumen.efic_separacion || 0}%</b>
         </div>
       </div>
       
       <div class="report-card">
-        <h3>📦 Pedidos por Grupo</h3>
-        <div class="metric-big">${resumen.pedidos_grupo.total}</div>
-        <div class="metric-label">Total de pedidos</div>
-        <div class="metric-sub">
-          <span>Unidades:</span> <b>${resumen.pedidos_grupo.unidades || 0}</b><br>
-          <span>Horas:</span> <b>${resumen.pedidos_grupo.horas || 0}</b><br>
-          <span>Productividad:</span> <b>${resumen.pedidos_grupo.productividad || 0} u/h</b>
-        </div>
+        <h3>⏳ Pendiente Picking</h3>
+        <div class="metric-big">${resumen.pendiente_picking || 0}</div>
+        <div class="metric-label">Unidades pendientes</div>
+      </div>
+      
+      <div class="report-card">
+        <h3>⏳ Pendiente Separación</h3>
+        <div class="metric-big">${resumen.pendiente_separacion || 0}</div>
+        <div class="metric-label">Unidades pendientes</div>
+      </div>
+      
+      <div class="report-card">
+        <h3>📊 Total Registros</h3>
+        <div class="metric-big">${resumen.total_registros || 0}</div>
+        <div class="metric-label">Registros en archivo grupos</div>
       </div>
     </div>
   `;
 }
 
-function renderTable(datos, columns) {
+function renderTable(datos, columns, customLabels = null) {
   if (!datos || datos.length === 0) {
     return '<div class="empty-state">No hay datos para mostrar</div>';
   }
   
-  const headers = columns.map(col => {
-    const labels = {
-      'fecha': 'Fecha',
-      'marca': 'Marca',
-      'canal': 'Canal',
-      'categoria': 'Categoría',
-      'cantidad_pedidos': 'Pedidos',
-      'total_unidades': 'Unidades',
-      'total_horas': 'Horas',
-      'productividad': 'Productividad'
-    };
-    return labels[col] || col;
-  });
+  const defaultLabels = {
+    'fecha': 'Fecha',
+    'marca': 'Marca',
+    'canal': 'Canal',
+    'categoria': 'Categoría',
+    'cantidad_pedidos': 'Pedidos',
+    'total_unidades': 'Unidades',
+    'unidades': 'Unidades',
+    'pickeadas': 'Pickeadas',
+    'separadas': 'Separadas',
+    'pendiente_picking': 'Pendiente Picking',
+    'pendiente_separacion': 'Pendiente Separación',
+    'efic_picking': 'Efic. Picking (%)',
+    'efic_separacion': 'Efic. Separación (%)',
+    'total_horas': 'Horas',
+    'productividad': 'Productividad'
+  };
+  
+  const labels = customLabels || defaultLabels;
+  const headers = columns.map(col => labels[col] || col);
   
   return `
     <div class="report-table-container">
@@ -270,7 +317,15 @@ function renderTable(datos, columns) {
         <tbody>
           ${datos.map(row => `
             <tr>
-              ${columns.map(col => `<td>${row[col] !== null && row[col] !== undefined ? row[col] : '-'}</td>`).join('')}
+              ${columns.map(col => {
+                let value = row[col];
+                if (value === null || value === undefined) {
+                  value = '-';
+                } else if (col.includes('efic_')) {
+                  value = `${value}%`;
+                }
+                return `<td>${value}</td>`;
+              }).join('')}
             </tr>
           `).join('')}
         </tbody>

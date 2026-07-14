@@ -50,6 +50,7 @@ def init_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             fecha TEXT,
             tienda TEXT,
+            id_tienda TEXT,
             pedido_id TEXT,
             cantidad INTEGER,
             operador TEXT,
@@ -63,8 +64,12 @@ def init_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             fecha TEXT,
             grupo TEXT,
+            marca TEXT,
+            id_tienda TEXT,
             pedido_id TEXT,
-            unidades INTEGER,
+            uni INTEGER,
+            uni_pick INTEGER,
+            uni_sep INTEGER,
             horas_trabajadas REAL,
             categoria TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -112,11 +117,12 @@ def insert_pedidos_tienda(data: list[dict]):
     for row in data:
         cursor.execute(
             """INSERT INTO pedidos_tienda
-               (fecha, tienda, pedido_id, cantidad, operador, turno)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+               (fecha, tienda, id_tienda, pedido_id, cantidad, operador, turno)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (
                 row.get("fecha"),
                 row.get("tienda"),
+                row.get("id_tienda"),
                 row.get("pedido_id"),
                 row.get("cantidad"),
                 row.get("operador"),
@@ -136,13 +142,17 @@ def insert_pedidos_grupo(data: list[dict]):
     for row in data:
         cursor.execute(
             """INSERT INTO pedidos_grupo
-               (fecha, grupo, pedido_id, unidades, horas_trabajadas, categoria)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+               (fecha, grupo, marca, id_tienda, pedido_id, uni, uni_pick, uni_sep, horas_trabajadas, categoria)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 row.get("fecha"),
                 row.get("grupo"),
+                row.get("marca"),
+                row.get("id_tienda"),
                 row.get("pedido_id"),
-                row.get("unidades"),
+                row.get("uni"),
+                row.get("uni_pick"),
+                row.get("uni_sep"),
                 row.get("horas_trabajadas"),
                 row.get("categoria")
             )
@@ -164,7 +174,7 @@ def get_productividad_picking() -> dict:
 
     cursor.execute("""
         SELECT
-            SUM(unidades) as total_unidades,
+            SUM(uni) as total_unidades,
             SUM(horas_trabajadas) as total_horas
         FROM pedidos_grupo
     """)
