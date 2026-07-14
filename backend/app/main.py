@@ -12,7 +12,7 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from app.routers import kpis, upload  # noqa: E402
+from app.routers import kpis, upload, reportes  # noqa: E402
 
 app = FastAPI(
     title="KPI Logística API",
@@ -31,6 +31,7 @@ app.add_middleware(
 
 app.include_router(kpis.router)
 app.include_router(upload.router)
+app.include_router(reportes.router)
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
 

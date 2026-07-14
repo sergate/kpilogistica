@@ -6,6 +6,49 @@
       "kpis": ["rec-und", "rec-time"]
     },
     {
+      "id": "status-preparacion",
+      "label": "Status Preparación",
+      "type": "expandable",
+      "subcategories": [
+        {
+          "id": "sp-importar",
+          "label": "Importar Datos",
+          "icon": "📥",
+          "action": "import"
+        },
+        {
+          "id": "sp-resumen",
+          "label": "Resumen",
+          "icon": "📊",
+          "action": "report"
+        },
+        {
+          "id": "sp-fecha",
+          "label": "Por Fecha",
+          "icon": "📅",
+          "action": "report"
+        },
+        {
+          "id": "sp-marca",
+          "label": "Por Marca",
+          "icon": "🏷️",
+          "action": "report"
+        },
+        {
+          "id": "sp-canal",
+          "label": "Por Canal",
+          "icon": "📦",
+          "action": "report"
+        },
+        {
+          "id": "sp-categoria",
+          "label": "Por Categoría",
+          "icon": "📋",
+          "action": "report"
+        }
+      ]
+    },
+    {
       "id": "picking",
       "label": "Picking",
       "kpis": ["pick-prod", "pick-err", "pick-mez"]
