@@ -26,15 +26,41 @@ kpilogistica/
 ## Cómo correrlo localmente
 
 ```bash
-cd backend
 python -m venv .venv
 source .venv/bin/activate        # en Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+cd backend && uvicorn app.main:app --reload --port 8000
 ```
 
 Abrir `http://localhost:8000` — el backend sirve el frontend estático y expone
 la API en `/api/*`.
+
+## Deploy en Vercel
+
+El repo ya está preparado para desplegarse tal cual en Vercel (frontend +
+backend en un solo deploy, sin servidores propios):
+
+1. Entrar a [vercel.com](https://vercel.com) → **Add New → Project** →
+   importar el repo `sergate/kpilogistica` desde GitHub.
+2. Framework Preset: dejarlo en **Other** (Vercel detecta FastAPI solo por
+   `pyproject.toml` / `requirements.txt`).
+3. Root Directory: dejar **vacío** (no poner `./`).
+4. Build Command / Output Directory: dejar vacíos — no aplica, es una función
+   Python.
+5. Deploy.
+
+Cómo funciona la configuración:
+- `pyproject.toml` le indica a Vercel que el entrypoint de la app es
+  `backend/app/main.py` (ahí vive la instancia `app` de FastAPI).
+- Esa función sirve tanto la API (`/api/*`) como el frontend estático
+  (`frontend/`), igual que en local.
+- `requirements.txt` en la raíz es lo que Vercel usa para detectar que es un
+  proyecto Python e instalar las dependencias.
+- `.python-version` fija la versión de Python (3.12).
+
+Una vez desplegado, Vercel te da una URL tipo
+`https://kpilogistica.vercel.app` con todo funcionando — frontend en `/` y
+API en `/api/zones`, `/api/kpis`, `/api/kpis/{id}`.
 
 ## Endpoints
 
