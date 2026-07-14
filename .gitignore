@@ -16,3 +16,7 @@ venv/
 
 # Logs
 *.log
+
+# Base de datos SQLite (no subir al repositorio)
+*.db
+*.sqlite
