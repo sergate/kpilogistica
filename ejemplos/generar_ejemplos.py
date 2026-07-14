@@ -78,7 +78,7 @@ with open("pedidos_grupo.csv", "w", newline="", encoding="utf-8") as f:
     writer.writerow(["fecha", "grupo", "marca", "id_tienda", "pedido_id", "Uni", "Uni.Pick", "Uni.Sep", "horas_trabajadas", "categoria"])
     
     # Generar 60 registros de ejemplo
-    grupos = ["Grupo A", "Grupo B", "Grupo C", "Grupo D"]
+    grupos = ["Grupo A", "Grupo B", "Grupo C", "Grupo D", "VIDRIERA", "MATERIALES EMPAQUE", "PACKAGING", "PROMOCION"]
     marcas = ["Nike", "Adidas", "Puma", "Reebok", "New Balance"]
     categorias = ["Apparel", "Calzado", "Accesorios"]
     tiendas_ids = ["C001", "C002", "C003", "C005", "C006", "C007"]

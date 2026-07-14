@@ -4,7 +4,23 @@
 
 Se han actualizado los reportes del sistema para implementar la lógica correcta de datos según las especificaciones. Los cambios incluyen:
 
-### 1. Actualización del Esquema de Base de Datos
+### 1. Exclusión de Grupos Específicos
+
+**IMPORTANTE:** Todos los cálculos y reportes excluyen automáticamente los siguientes grupos:
+- `VIDRIERA`
+- `MATERIALES EMPAQUE`
+- `PACKAGING`
+- `PROMOCION`
+
+Esta exclusión se aplica en:
+- Resumen general
+- Análisis por fecha
+- Análisis por marca
+- Análisis por canal
+- Análisis por categoría
+- Cálculo de productividad de picking
+
+### 2. Actualización del Esquema de Base de Datos
 
 #### Tabla `pedidos_tienda`
 Se agregó el campo `id_tienda` para permitir el cruce con la tabla de clientes:
@@ -148,6 +164,8 @@ Luego abrir en el navegador: `http://localhost:3000`
 - Los cruces de datos se realizan mediante JOINs en las consultas SQL
 - Las eficiencias se calculan como porcentajes redondeados a 2 decimales
 - Los archivos CSV deben usar separador `;` y encoding UTF-8
+- **Todos los endpoints excluyen automáticamente los grupos:** `VIDRIERA`, `MATERIALES EMPAQUE`, `PACKAGING` y `PROMOCION`
+- La exclusión se implementa mediante cláusula `WHERE grupo NOT IN (...)` en todas las consultas SQL
 
 ## Testing
 

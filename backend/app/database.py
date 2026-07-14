@@ -177,6 +177,7 @@ def get_productividad_picking() -> dict:
             SUM(uni) as total_unidades,
             SUM(horas_trabajadas) as total_horas
         FROM pedidos_grupo
+        WHERE grupo NOT IN ('VIDRIERA', 'MATERIALES EMPAQUE', 'PACKAGING', 'PROMOCION')
     """)
 
     result = cursor.fetchone()

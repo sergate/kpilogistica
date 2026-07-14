@@ -34,7 +34,7 @@ def get_resumen():
         conn = get_connection()
         cursor = conn.cursor()
         
-        # Calcular totales del archivo grupos
+        # Calcular totales del archivo grupos (excluyendo grupos específicos)
         cursor.execute("""
             SELECT 
                 COUNT(*) as total_registros,
@@ -42,6 +42,7 @@ def get_resumen():
                 COALESCE(SUM(uni_pick), 0) as unidades_pickeadas,
                 COALESCE(SUM(uni_sep), 0) as unidades_separadas
             FROM pedidos_grupo
+            WHERE grupo NOT IN ('VIDRIERA', 'MATERIALES EMPAQUE', 'PACKAGING', 'PROMOCION')
         """)
         resultado = cursor.fetchone()
         
@@ -115,7 +116,8 @@ def get_por_fecha():
                     ELSE 0 
                 END as efic_separacion
             FROM pedidos_grupo
-            WHERE marca IS NOT NULL
+            WHERE marca IS NOT NULL 
+                AND grupo NOT IN ('VIDRIERA', 'MATERIALES EMPAQUE', 'PACKAGING', 'PROMOCION')
             GROUP BY fecha, marca
             ORDER BY fecha DESC, marca
         """)
@@ -172,7 +174,8 @@ def get_por_marca():
                     ELSE 0 
                 END as efic_separacion
             FROM pedidos_grupo
-            WHERE marca IS NOT NULL
+            WHERE marca IS NOT NULL 
+                AND grupo NOT IN ('VIDRIERA', 'MATERIALES EMPAQUE', 'PACKAGING', 'PROMOCION')
             GROUP BY marca
             ORDER BY unidades DESC
         """)
@@ -231,7 +234,8 @@ def get_por_canal():
             FROM pedidos_grupo pg
             LEFT JOIN pedidos_tienda pt ON pg.id_tienda = pt.id_tienda
             LEFT JOIN clientes c ON pt.id_tienda = c.codigo
-            WHERE c.canal IS NOT NULL
+            WHERE c.canal IS NOT NULL 
+                AND pg.grupo NOT IN ('VIDRIERA', 'MATERIALES EMPAQUE', 'PACKAGING', 'PROMOCION')
             GROUP BY c.canal
             ORDER BY unidades DESC
         """)
@@ -267,11 +271,12 @@ def get_por_categoria():
             SELECT 
                 categoria,
                 COUNT(*) as cantidad_pedidos,
-                SUM(unidades) as total_unidades,
+                COALESCE(SUM(uni), 0) as total_unidades,
                 SUM(horas_trabajadas) as total_horas,
-                ROUND(SUM(unidades) * 1.0 / NULLIF(SUM(horas_trabajadas), 0), 2) as productividad
+                ROUND(SUM(uni) * 1.0 / NULLIF(SUM(horas_trabajadas), 0), 2) as productividad
             FROM pedidos_grupo
-            WHERE categoria IS NOT NULL
+            WHERE categoria IS NOT NULL 
+                AND grupo NOT IN ('VIDRIERA', 'MATERIALES EMPAQUE', 'PACKAGING', 'PROMOCION')
             GROUP BY categoria
             ORDER BY total_unidades DESC
         """)
